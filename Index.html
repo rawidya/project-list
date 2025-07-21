@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="1.css"/>
+    <title>Tier List guru semkanisa</title>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Tier List</h1>
+            <p>ranking Bla bla</p>
+        </div>
+        
+        <div class="content">
+            <div class="controls">
+                <div class="input-group">
+                    <input type="text" id="itemName" placeholder="Nama item..." maxlength="15">
+                    <button class="btn btn-primary" onclick="addItem()">Tambah Item</button>
+                </div>
+                <button class="btn btn-success" onclick="exportTierList()">Export PNG</button>
+                <button class="btn btn-danger" onclick="resetTierList()">Reset</button>
+            </div>
+            <!--ini untuk tier-->
+            <div class="tier-container" id="tierContainer">
+                <div class="tier-row">
+                    <div class="tier-label tier-s">Respect</div>
+                    <div class="tier-items" data-tier="S" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                </div>
+                <div class="tier-row">
+                    <div class="tier-label tier-a">Mid</div>
+                    <div class="tier-items" data-tier="A" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                </div>
+                <div class="tier-row">
+                    <div class="tier-label tier-b">Biasa</div>
+                    <div class="tier-items" data-tier="B" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                </div>
+                <div class="tier-row">
+                    <div class="tier-label tier-c">Hell</div>
+                    <div class="tier-items" data-tier="C" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                </div>
+
+            <div class="item-pool" ondrop="drop(event)" ondragover="allowDrop(event)" data-tier="pool">
+                <h3> Item Pool - Drag item ke tier yang sesuai</h3>
+                <div class="item-pool-content" id="itemPool">
+                    <!-- Items akan ditambahkan di sini -->
+                </div>
+            </div>
+        <script>
+        let itemCounter = 0;
+        let draggedElement = null;
+
+        // Tambah item baru
+        function addItem() {
+            const itemName = document.getElementById('itemName').value.trim();
+            if (!itemName) {
+                alert('Masukkan nama item terlebih dahulu!');
+                return;
+            }
+
+            itemCounter++;
+            const item = document.createElement('div');
+            item.className = 'item';
+            item.draggable = true;
+            item.id = 'item-' + itemCounter;
+            item.innerHTML = `
+                ${itemName}
+                <button class="remove-btn" onclick="removeItem('${item.id}')" title="Hapus item">×</button>
+            `;
+            
+            item.addEventListener('dragstart', dragStart);
+            item.addEventListener('dragend', dragEnd);
+
+            document.getElementById('itemPool').appendChild(item);
+            document.getElementById('itemName').value = '';
+            updateStats();
+        }
+
+        // Hapus item
+        function removeItem(itemId) {
+            const item = document.getElementById(itemId);
+            if (item) {
+                item.remove();
+                updateStats();
+            }
+        }
+
+        // Drag and drop functions
+        function dragStart(e) {
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
+        }
+
+        function dragEnd(e) {
+            e.target.classList.remove('dragging');
+            draggedElement = null;
+            
+            // Remove drag-over class from all tier-items
+            document.querySelectorAll('.tier-items').forEach(tier => {
+                tier.classList.remove('drag-over');
+            });
+        }
+
+        function allowDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function drop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            
+            if (draggedElement && e.currentTarget.classList.contains('tier-items') || e.currentTarget.classList.contains('item-pool')) {
+                if (e.currentTarget.classList.contains('item-pool')) {
+                    document.getElementById('itemPool').appendChild(draggedElement);
+                } else {
+                    e.currentTarget.appendChild(draggedElement);
+                }
+                updateStats();
+            }
+        }
+
+        // Update statistik
+        function updateStats() {
+            const totalItems = document.querySelectorAll('.item').length;
+            const poolItems = document.getElementById('itemPool').children.length;
+            
+            document.getElementById('totalItems').textContent = totalItems;
+            document.getElementById('poolItems').textContent = poolItems;
+        }
+
+        // Reset tier list
+        function resetTierList() {
+            if (confirm('Yakin ingin mereset semua item?')) {
+                // Pindahkan semua item kembali ke pool
+                document.querySelectorAll('.tier-items .item').forEach(item => {
+                    document.getElementById('itemPool').appendChild(item);
+                });
+                updateStats();
+            }
+        }
+
+        // Export sebagai gambar (simulasi)
+        function exportTierList() {
+            alert('Fitur export akan segera tersedia! Untuk sementara, Anda bisa screenshot halaman ini.');
+        }
+
+        // Tambah beberapa item contoh
+        function addSampleItems() {
+            const samples = ['Apple', 'Orange', 'Banana', 'Grape', 'Strawberry', 'Mango', 'Kiwi', 'Pineapple'];
+            samples.forEach(name => {
+                document.getElementById('itemName').value = name;
+                addItem();
+            });
+        }
+
+        // Enter key untuk tambah item
+        document.getElementById('itemName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addItem();
+            }
+        });
+
+        // Tambah item contoh saat halaman dimuat
+        window.onload = function() {
+            addSampleItems();
+        };
+
+        // Prevent drag over events on body
+        document.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        });
+    </script>
+</body>
+</html>
